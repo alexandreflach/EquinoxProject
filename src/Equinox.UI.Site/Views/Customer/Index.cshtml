@@ -1,9 +1,10 @@
+@using Microsoft.AspNetCore.Mvc.Localization
 @model IEnumerable<Equinox.Application.ViewModels.CustomerViewModel>
+@inject IViewLocalizer Localizer
 
-@{
-    ViewData["Title"] = "Customer Management";
+@{ 
+    ViewData["Title"] = Localizer["Title"];
 }
-
 <div>
     <h2>@ViewData["Title"]</h2>
 </div>
@@ -14,7 +15,7 @@
         <div>
             <div class="pull-left">
                 <a asp-action="Create" class="btn btn-primary">
-                    <span title="Register New" class="glyphicon glyphicon-plus-sign"></span> Register New
+                    <span title="@Localizer["Register New"]" class="glyphicon glyphicon-plus-sign"></span> @Localizer["Register New"]
                 </a>
             </div>
         </div>
@@ -25,51 +26,51 @@
 <div class="panel panel-default">
     <table class="table table-striped">
         <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BirthDate)
-            </th>
-            <th></th>
-        </tr>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Email)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.BirthDate)
+                </th>
+                <th></th>
+            </tr>
         </thead>
         <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.BirthDate)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" title="Edit" class="btn btn-warning">
-                        <span class="glyphicon glyphicon-pencil"></span>
-                    </a>
-                        
-                    <a asp-action="Details" asp-route-id="@item.Id" title="Details" class="btn btn-primary">
-                        <span class="glyphicon glyphicon-search"></span>
-                    </a>
-                        
-                    <a asp-action="Delete" asp-route-id="@item.Id" title="Delete" class="btn btn-danger">
-                        <span class="glyphicon glyphicon-trash"></span>
-                    </a>
-                    
-                    <button type="button" class="btn btn-purple viewbutton" title="History" data-id="@item.Id" data-toggle="modal" data-target="#customerHistory">
-                        <span class="glyphicon glyphicon-time"></span>
-                    </button>
-                </td>
-            </tr>
-        }
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Email)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.BirthDate)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" title="Edit" class="btn btn-warning">
+                            <span class="glyphicon glyphicon-pencil"></span>
+                        </a>
+
+                        <a asp-action="Details" asp-route-id="@item.Id" title="Details" class="btn btn-primary">
+                            <span class="glyphicon glyphicon-search"></span>
+                        </a>
+
+                        <a asp-action="Delete" asp-route-id="@item.Id" title="Delete" class="btn btn-danger">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </a>
+
+                        <button type="button" class="btn btn-purple viewbutton" title="History" data-id="@item.Id" data-toggle="modal" data-target="#customerHistory">
+                            <span class="glyphicon glyphicon-time"></span>
+                        </button>
+                    </td>
+                </tr>
+            }
         </tbody>
     </table>
 </div>
@@ -92,15 +93,15 @@
 </div>
 
 @section scripts
-{
+    {
     <script type="text/javascript">
-        $(".viewbutton").on("click", function() {
+        $(".viewbutton").on("click", function () {
             var customerId = $(this).data('id');
             $.ajax({
                 url: "http://localhost:52346/customer-management/customer-history/" + customerId,
                 //url: "http://equinoxproject.azurewebsites.net/customer-management/customer-history/" + customerId,
                 cache: false
-            }).done(function(data) {
+            }).done(function (data) {
                 var formatHtml = "<table class='table table-striped'>";
                 formatHtml += "<thead><th>Action</th><th>When</th><th>Id</th><th>Name</th><th>E-mail</th><th>Birth Date</th><th>By User</th></thead>";
 
@@ -120,5 +121,5 @@
                 $("#customerHistoryData").html(formatHtml);
             });
         });
-</script>
+    </script>
 }

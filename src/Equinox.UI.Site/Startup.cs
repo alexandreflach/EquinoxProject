@@ -13,6 +13,10 @@ using Equinox.UI.Site.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Globalization;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Options;
 
 namespace Equinox.UI.Site
 {
@@ -27,6 +31,8 @@ namespace Equinox.UI.Site
         
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLocalization(opts => { opts.ResourcesPath = "Resources"; });
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
@@ -51,7 +57,12 @@ namespace Equinox.UI.Site
                 });
 
             services.AddAutoMapperSetup();
-            services.AddMvc();
+            services.AddMvc()
+                .AddViewLocalization(Microsoft.AspNetCore.Mvc.Razor.LanguageViewLocationExpanderFormat.Suffix)
+                .AddDataAnnotationsLocalization(options => {
+                    options.DataAnnotationLocalizerProvider = (type, factory) =>
+                        factory.Create(typeof(Resources.SharedResource));
+                });
 
             services.AddAuthorization(options =>
             {
@@ -64,6 +75,22 @@ namespace Equinox.UI.Site
 
             // .NET Native DI Abstraction
             RegisterServices(services);
+
+            services.Configure<RequestLocalizationOptions>(
+                opts =>
+                {
+                    var supportedCultures = new List<CultureInfo>
+                    {
+                        new CultureInfo("pt-BR"),
+                        new CultureInfo("en-US")
+                    };
+
+                    opts.DefaultRequestCulture = new RequestCulture("pt-BR");
+                    // Formatting numbers, dates, etc.
+                    opts.SupportedCultures = supportedCultures;
+                    // UI strings that we have localized.
+                    opts.SupportedUICultures = supportedCultures;
+                });
         }
 
         public void Configure(IApplicationBuilder app,
@@ -86,6 +113,9 @@ namespace Equinox.UI.Site
 
             app.UseStaticFiles();
             app.UseAuthentication();
+
+            var options = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
+            app.UseRequestLocalization(options.Value);
 
             app.UseMvc(routes =>
             {
